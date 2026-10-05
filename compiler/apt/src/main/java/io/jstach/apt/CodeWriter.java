@@ -161,8 +161,17 @@ class CodeWriter {
 
 		};
 
-		try (TemplateCompiler templateCompiler = TemplateCompiler.createCompiler(templateName, templateLoader, writer,
-				context, config.flags())) {
+		/*
+		 * Build an explicit partial expansion plan before any code is generated. The
+		 * plan binds partials by the real logical name the TemplateLoader resolves,
+		 * reads each template snapshot once, and fails here (before a half written
+		 * renderer class could be produced) on recursive partial chains or unknown
+		 * partials.
+		 */
+		PartialExpansionPlan plan = PartialExpansionPlan.check(templateName, templateLoader);
+
+		try (TemplateCompiler templateCompiler = TemplateCompiler.createCompiler(templateName, plan.snapshotLoader(),
+				writer, context, config.flags())) {
 			templateCompiler.run();
 		}
 	}

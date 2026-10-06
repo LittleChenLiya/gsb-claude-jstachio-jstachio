@@ -306,8 +306,9 @@ abstract class TemplateCompiler extends AbstractTemplateCompiler {
 	}
 
 	@Override
-	public ParameterPartial createParameterPartial(String templateName) throws IOException {
+	public ParameterPartial createParameterPartial(String templateName) throws ProcessingException, IOException {
 		debug("Create Parameter Partial: " + templateName);
+		checkPartialCycle(templateName);
 		var reader = getTemplateLoader().open(templateName);
 		TemplateCompilerContext context = this.context.createForParameterPartial(templateName);
 		/*
@@ -320,7 +321,8 @@ abstract class TemplateCompiler extends AbstractTemplateCompiler {
 		return new ParameterPartial(c, processor);
 	}
 
-	public Partial createPartial(String templateName) throws IOException {
+	public Partial createPartial(String templateName) throws ProcessingException, IOException {
+		checkPartialCycle(templateName);
 		var reader = getTemplateLoader().open(templateName);
 		TemplateCompilerContext context = this.context.createForPartial(templateName);
 		var c = new SubTemplateCompiler(reader, this, context) {
@@ -332,6 +334,14 @@ abstract class TemplateCompiler extends AbstractTemplateCompiler {
 		c.indent = partialIndent;
 		partialIndent = "";
 		return new Partial(c);
+	}
+
+	/*
+	 * Locates a partial recursion chain on the current template stack before the
+	 * partial is expanded infinitely.
+	 */
+	private void checkPartialCycle(String templateName) throws ProcessingException {
+		PartialExpansionPlan.checkCycle(context.getTemplateStack(), templateName, position);
 	}
 
 	void flushUnescaped() {
@@ -712,6 +722,11 @@ abstract class TemplateCompiler extends AbstractTemplateCompiler {
 		private final TemplateStack templateStack;
 
 		public RootTemplateCompiler(String templateName, TemplateLoader templateLoader, CodeAppendable writer,
+				TemplateCompilerContext context, Set<Flag> flags) throws IOException {
+			this(templateName, PartialExpansionPlan.of(templateLoader), writer, context, flags);
+		}
+
+		private RootTemplateCompiler(String templateName, PartialExpansionPlan templateLoader, CodeAppendable writer,
 				TemplateCompilerContext context, Set<Flag> flags) throws IOException {
 			super(templateLoader.open(templateName), context);
 			this.templateLoader = templateLoader;

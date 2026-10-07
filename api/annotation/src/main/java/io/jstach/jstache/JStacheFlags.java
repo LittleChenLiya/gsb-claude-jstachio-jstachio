@@ -159,7 +159,22 @@ public @interface JStacheFlags {
 		/**
 		 * Will always bind "@context" with a empty ContextNode.
 		 */
-		CONTEXT_SUPPORT_DISABLE;
+		CONTEXT_SUPPORT_DISABLE,
+
+		/**
+		 * <strong>EXPERIMENTAL:</strong> If set a missing partial template (like
+		 * <code>{{&gt; missing.mustache }}</code>) will fail compilation with a
+		 * diagnostic error that includes the calling template as well as the tag
+		 * position (line and column) of the partial tag.
+		 * <p>
+		 * The missing partial will <strong>NOT</strong> be replaced with empty text
+		 * and no renderer will be generated. Inline partials (
+		 * {@link JStachePartial#template()}) with the same name still take precedence
+		 * over file based partials following the original lookup order.
+		 * @apiNote This is currently experimental and may in the future become the
+		 * default behavior.
+		 */
+		PARTIAL_MISSING_DIAGNOSTICS;
 
 	}
 

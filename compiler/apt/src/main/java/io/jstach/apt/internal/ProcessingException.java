@@ -29,6 +29,8 @@
  */
 package io.jstach.apt.internal;
 
+import java.io.IOException;
+
 import org.eclipse.jdt.annotation.Nullable;
 
 import io.jstach.apt.internal.context.ContextException;
@@ -110,6 +112,40 @@ public class ProcessingException extends Exception {
 					+ "\n";
 
 			return new VariableProcessingException(position, ex, m);
+		}
+
+	}
+
+	/**
+	 * Thrown when a partial template (like <code>{{&gt; partial }}</code>) cannot be
+	 * found or opened. The diagnostic message contains the calling template as well as
+	 * the position of the partial tag that referenced the missing template. The missing
+	 * partial is never replaced with empty text and thus no renderer will be generated.
+	 */
+	public static class PartialProcessingException extends ProcessingException {
+
+		private static final long serialVersionUID = 1L;
+
+		public PartialProcessingException(Position position, String message, IOException cause) {
+			super(position, message, cause);
+		}
+
+		public static PartialProcessingException of(String partialName, //
+				TemplateCompilerContext context, //
+				Position position, //
+				IOException ex) {
+			var templateStack = context.getTemplateStack();
+
+			String m = "Missing partial template. The partial was not replaced with empty text"
+					+ " and no renderer will be generated." //
+					+ "\n      partial: \'" + partialName + "'" //
+					+ "\n     template: \'" + templateStack.getTemplateName() + "'" //
+					+ "\n     position: \'" + position.description() + "'" //
+					+ "\ntemplate stack: " + templateStack.describeTemplateStack() //
+					+ "\n       reason: " + ex.getMessage() //
+					+ "\n";
+
+			return new PartialProcessingException(position, m, ex);
 		}
 
 	}

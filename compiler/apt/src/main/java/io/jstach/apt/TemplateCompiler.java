@@ -306,9 +306,9 @@ abstract class TemplateCompiler extends AbstractTemplateCompiler {
 	}
 
 	@Override
-	public ParameterPartial createParameterPartial(String templateName) throws IOException {
+	public ParameterPartial createParameterPartial(String templateName) throws ProcessingException, IOException {
 		debug("Create Parameter Partial: " + templateName);
-		var reader = getTemplateLoader().open(templateName);
+		var reader = openPartial(templateName);
 		TemplateCompilerContext context = this.context.createForParameterPartial(templateName);
 		/*
 		 * TODO this is sloppy
@@ -320,8 +320,8 @@ abstract class TemplateCompiler extends AbstractTemplateCompiler {
 		return new ParameterPartial(c, processor);
 	}
 
-	public Partial createPartial(String templateName) throws IOException {
-		var reader = getTemplateLoader().open(templateName);
+	public Partial createPartial(String templateName) throws ProcessingException, IOException {
+		var reader = openPartial(templateName);
 		TemplateCompilerContext context = this.context.createForPartial(templateName);
 		var c = new SubTemplateCompiler(reader, this, context) {
 			@Override
@@ -332,6 +332,32 @@ abstract class TemplateCompiler extends AbstractTemplateCompiler {
 		c.indent = partialIndent;
 		partialIndent = "";
 		return new Partial(c);
+	}
+
+	/**
+	 * Opens a partial template following the original lookup order (inline partials
+	 * first, then file based templates). If the partial cannot be found and the
+	 * {@link Flag#PARTIAL_MISSING_DIAGNOSTICS} flag is enabled a
+	 * {@link ProcessingException.PartialProcessingException} is thrown that includes
+	 * the calling template as well as the position of the partial tag instead of
+	 * replacing the missing partial with empty text.
+	 * @param templateName the partial template name from the mustache tag.
+	 * @return the resolved partial template reader.
+	 * @throws ProcessingException if the partial is missing and partial missing
+	 * diagnostics are enabled.
+	 * @throws IOException if the partial is missing and the diagnostics flag is not
+	 * enabled (original behavior).
+	 */
+	private NamedReader openPartial(String templateName) throws ProcessingException, IOException {
+		try {
+			return getTemplateLoader().open(templateName);
+		}
+		catch (IOException ex) {
+			if (flags().contains(Flag.PARTIAL_MISSING_DIAGNOSTICS)) {
+				throw ProcessingException.PartialProcessingException.of(templateName, context, position, ex);
+			}
+			throw ex;
+		}
 	}
 
 	void flushUnescaped() {

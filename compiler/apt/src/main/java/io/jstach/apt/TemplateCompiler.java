@@ -638,6 +638,15 @@ abstract class TemplateCompiler extends AbstractTemplateCompiler {
 
 		}
 		catch (ContextException | IOException ex) {
+			if (ex instanceof IOException ioe && flags().contains(Flag.MISSING_PARTIAL_DIAGNOSTICS)) {
+				/*
+				 * Fail the compilation with an enriched diagnostic instead of
+				 * substituting the missing partial with empty text. The exception
+				 * aborts the renderer generation so no half compiled renderer is
+				 * left behind.
+				 */
+				throw ProcessingException.PartialProcessingException.of(name, context, position, ioe);
+			}
 			throw new ProcessingException(position, ex);
 		}
 		print(context.endSectionRenderingCode());

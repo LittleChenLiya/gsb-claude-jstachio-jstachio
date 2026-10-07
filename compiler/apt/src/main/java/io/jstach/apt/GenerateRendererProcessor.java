@@ -119,7 +119,9 @@ import io.jstach.svc.ServiceProvider;
 		Prisms.JSTACHE_INCREMENTAL_OPTION, //
 		Prisms.JSTACHE_FLAGS_DEBUG, //
 		Prisms.JSTACHE_FLAGS_NO_INVERTED_BROKEN_CHAIN, //
-		Prisms.JSTACHE_FLAGS_NO_NULL_CHECKING, GenerateRendererProcessor.JSTACHE_CLAIM_ANNOTATIONS, //
+		Prisms.JSTACHE_FLAGS_NO_NULL_CHECKING, //
+		Prisms.JSTACHE_FLAGS_MISSING_PARTIAL_DIAGNOSTICS, //
+		GenerateRendererProcessor.JSTACHE_CLAIM_ANNOTATIONS, //
 		GenerateRendererProcessor.JSTACHE_GRADLE_INCREMENTAL //
 })
 public class GenerateRendererProcessor extends AbstractProcessor implements Prisms {

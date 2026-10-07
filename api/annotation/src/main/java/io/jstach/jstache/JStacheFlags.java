@@ -159,7 +159,21 @@ public @interface JStacheFlags {
 		/**
 		 * Will always bind "@context" with a empty ContextNode.
 		 */
-		CONTEXT_SUPPORT_DISABLE;
+		CONTEXT_SUPPORT_DISABLE,
+
+		/**
+		 * <strong>EXPERIMENTAL:</strong> If a partial (<code>{{&gt; partialName }}</code>)
+		 * cannot be resolved to a template resource (an inline
+		 * {@link JStachePartial}, a file, or a fragment) the compile error will be
+		 * enriched with the calling template and the tag position of the offending
+		 * partial tag. The missing partial is never replaced with empty text and the
+		 * compilation fails so that no half compiled renderer is left behind. Inline
+		 * partials with the same name still follow the original lookup priority and
+		 * take precedence over file based resources.
+		 * <p>
+		 * If this flag is not set the original error handling is used.
+		 */
+		MISSING_PARTIAL_DIAGNOSTICS;
 
 	}
 

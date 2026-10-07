@@ -46,6 +46,11 @@ public interface Prisms {
 	/**
 	 * Generated
 	 */
+	public static final String JSTACHE_FLAGS_MISSING_PARTIAL_DIAGNOSTICS = "jstache.missing_partial_diagnostics";
+
+	/**
+	 * Generated
+	 */
 	public static final String JSTACHE_RESOURCES_PATH_OPTION = "jstache.resourcesPath";
 
 	/**
@@ -167,6 +172,10 @@ public interface Prisms {
 		 * Generated
 		 */
 		CONTEXT_SUPPORT_DISABLE, //
+		/**
+		 * Generated
+		 */
+		MISSING_PARTIAL_DIAGNOSTICS, //
 
 	}
 

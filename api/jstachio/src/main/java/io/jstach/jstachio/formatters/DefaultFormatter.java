@@ -10,11 +10,17 @@ import io.jstach.jstache.JStacheFormatterTypes;
 import io.jstach.jstachio.Appender;
 import io.jstach.jstachio.Formatter;
 import io.jstach.jstachio.Output;
+import io.jstach.jstachio.output.EscapeOutputAdapter;
 
 /**
  * Default formatters.
  *
  * Unlike the mustache spec it will throw a NPE trying to format null objects.
+ * <p>
+ * If the output is an {@link EscapeOutputAdapter} escaped variable writes are associated
+ * with the variable path so that downstream {@link java.io.IOException}s are reported as
+ * {@link io.jstach.jstachio.output.EscapedVariableException}s. Unescaped (triple
+ * mustache) variables and native types are passed through unchanged.
  *
  * @author agentgt
  */
@@ -32,7 +38,7 @@ public interface DefaultFormatter extends Formatter {
 			throw new NullPointerException("null at: '" + path + "'");
 		}
 		else {
-			downstream.append(a, String.valueOf(o));
+			EscapeOutputAdapter.appendVariable(downstream, a, path, String.valueOf(o));
 		}
 	}
 
@@ -45,7 +51,7 @@ public interface DefaultFormatter extends Formatter {
 		if (s == null) {
 			throw new NullPointerException("null at: '" + path + "'");
 		}
-		downstream.append(a, s);
+		EscapeOutputAdapter.appendVariable(downstream, a, path, s);
 	}
 
 	/**

@@ -33,7 +33,7 @@ import io.jstach.jstachio.escapers.PlainText;
  * @author agentgt
  * @see Escaper
  */
-public sealed interface Appender permits Escaper {
+public sealed interface Appender permits Escaper, EscapingAppender {
 
 	/**
 	 * Analogous to {@link Appendable#append(CharSequence)}.

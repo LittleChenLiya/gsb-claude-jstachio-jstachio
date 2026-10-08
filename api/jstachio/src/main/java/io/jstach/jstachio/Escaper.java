@@ -36,6 +36,11 @@ import io.jstach.jstachio.escapers.PlainText;
  * For context specific escaping like for example XML attributes consider using a
  * {@link JStacheLambda} as the escaper is not passed information where in the template
  * escaping is requested.
+ * <p>
+ * To associate an appendable write failure with the escaped template variable being
+ * rendered (variable name and zero based position, keeping the original
+ * {@link IOException} as the cause) wrap the output in
+ * {@link EscapingOutput#of(Output)}.
  *
  * <h2>Implementing</h2>
  *
